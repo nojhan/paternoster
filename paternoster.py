@@ -16,37 +16,33 @@ def call( cmd, text, nowait=False ):
     # If there is a string formatting mark
     try:
         # put the matching text in it
-        order = str(cmd % text).split()
+        behest = cmd % text
     except TypeError:
         # else, do not
-        order = cmd.split()
-
-    # Join the command parts in the subprocess list format: [command,args]
-    behest = [order[0]," ".join(order[1:])]
+        behest = cmd
 
     with open("/dev/null") as dev_null:
         if nowait:
-            subprocess.Popen( behest, stdout=sys.stdout, stderr=dev_null )
+            subprocess.Popen( behest, stdout=sys.stdout, stderr=dev_null, shell=True )
         else:
-            subprocess.call(  behest, stdout=sys.stdout, stderr=dev_null )
+            subprocess.call(  behest, stdout=sys.stdout, stderr=dev_null, shell=True )
 
 
-def parse( text, pattern, cmd="", nowait=False ):
+def parse( text, pattern, cmd=[""], nowait=False ):
 
     regex = re.compile(pattern)
     for match in regex.finditer(text):
 
         # If no groups are specified
         if not match.groups():
-            call( cmd, text, nowait )
+            call( cmd[0], text, nowait )
 
         else:
             nb_groups = len(match.groups())
 
             # Build a list of colors that match the number of grouped,
             # If there is not enough commands, duplicate the last one.
-            cmds_l = cmd.split(",")
-            group_cmds = cmds_l + [cmds_l[-1]] * (nb_groups - len(cmds_l))
+            group_cmds = cmd + [cmd[-1]] * (nb_groups - len(cmd))
 
             # For each group index.
             # Note that match.groups returns a tuple (thus being indexed in [0,n[),
@@ -109,18 +105,18 @@ if __name__ == "__main__":
     parser.add_argument("pattern", metavar="REGEX", type=str, nargs=1,
             help="A regular expression")
 
-    parser.add_argument("command", metavar="CMD", type=str, nargs='?',
+    parser.add_argument("commands", metavar="CMD", type=str, nargs="+",
             default="espeak %s",
             help="The command to run if REGEX match. \
             If CMD contains a string formating placefolder (like \"%%s\"), \
             it will be replaced by the matching text. \
-            Multiple commands may be specified as a list of comma-separated values. \
-            Commands will then be called for each matching group within REGEX.")
+            Multiple commands may be specified as a list of space-separated strings. \
+            Each command will then be called for each corresponding matching group within REGEX.")
 
     parser.add_argument("-w", "--no-wait", action="store_true",
             help="Don't wait for the end of the current command before calling the next one.")
 
     args = parser.parse_args()
 
-    map_write( sys.stdin, sys.stdout, parse, args.pattern[0], args.command, args.no_wait )
+    map_write( sys.stdin, sys.stdout, parse, args.pattern[0], args.commands, args.no_wait )
 
