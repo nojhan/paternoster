@@ -8,7 +8,7 @@ A command line tool that call the given command for each input line matching the
 
 `paternoster` [-h]
 
-`paternoster` [-w] [-e] PATTERN COMMAND(S)
+`paternoster` [-w] [-e] [-g] PATTERN COMMAND(S)
 
 
 ## DESCRIPTION
@@ -32,15 +32,21 @@ duplicated across remaining groups.
 
 * `-w`, `--nowait`:
   Don't wait for the end of the current command before calling the next one.
+  This will call commands as soon as they are met in the stream, 
+  If the stream is read fast, commands will most probably be ran quasi-simultaneously.
 
 * `-e`, `--end`:
   Run commands at the end of the input stream.
+  Note that if the stream don't end (for example if you input from `tail -f`),
+  nothing will be done until an interruption.
 
 * `-g`, `--group`:
   Capture groups as arguments for the CMD, instead of running CMD for each group.
   CMD must have as many formating placeholder as captured groups.
   For example, if you capture 3 groups, you must put 3 formating placeholders in CMD:
     `paternoster --group "^(.*):(.*):(.*)$" "echo '>>> 1:%s 2:%s 3:%s <<<'"`
+  If placeholders count does not match the groups count, no substitution is made
+  and the placeholders are left as is.
 
 
 ## EXAMPLES

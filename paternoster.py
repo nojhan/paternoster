@@ -93,11 +93,6 @@ def read_parse( stream_in, stream_out, pattern, cmd, nowait = False, at_end = Fa
     Read the given file-like object as a non-blocking stream
     and call the function on each item (line),
     with the given extra arguments.
-
-    A call to "map_write(sys.stdin, function, *args)" will translate to the
-    non-blocking equivalent of:
-        for item in sys.stdin.readlines():
-            write( function( *args ) )
     """
 
     if at_end:
@@ -138,7 +133,6 @@ if __name__ == "__main__":
             help="A regular expression")
 
     parser.add_argument("commands", metavar="CMD", type=str, nargs="+",
-            default="espeak %s",
             help="The command to run if REGEX match. \
             If CMD contains a string formating placefolder (like \"%%s\"), \
             it will be replaced by the matching text. \
