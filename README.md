@@ -71,6 +71,8 @@ duplicated across remaining groups.
 * Notify the desktop every time a user logs in or out:
   `tail -n 2 -f /var/log/auth.log | paternoster --group ".*session (opened|closed) for user ([^\s]+)\s*" "notify-send '%s %s'"`
 
+* Play a sound corresponding to the status of the battery every time it is updated
+    `tail -f battery-stats | paternoster --group "^[0-9]{7}([0-9]{3})" "play -n synth sin %s trim 0 0.05"
 
 ## CREDITS
 
